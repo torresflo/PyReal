@@ -7,7 +7,7 @@
   <h1 align="center">PyReal</h3>
 
   <p align="center">
-    A little API to retrieve data and photos from the social netwotk BeReal.
+    A little Python API wrapper to retrieve data and photos from the social netwotk BeReal.
     <br />
     <a href="https://github.com/torresflo/PyReal/issues">Report a bug or request a feature</a>
   </p>
@@ -58,10 +58,38 @@ The goal of the API is to be able to retrieve data from BeReal (read-only), it i
 
 Here are the current implemented and planned features:
 - [x] Past posted photos (Memories)
-- [ ] Profile and User info
-- [ ] Current Feed (Friends and Discovery)
+- [x] Profile and User info
+- [x] Current Feed (Friends and Discovery)
+- [x] Reactions (RealMojis)
 - [ ] Memories Video
-- [ ] Reactions (RealMojis)
+
+Here is a small example of how to use the API:
+```python
+from API.BeRealAPI import PyReal
+
+pyReal = PyReal()
+pyReal.connect(<phoneNumber>) # Process the connection
+
+if pyReal.isConnected():
+    # Retrieve connected user info in form of a ConfidentialUser object
+    pyReal.getUserInfo()
+
+    # Retrieve friends list in form of an array of User object
+    pyReal.getFriends()
+    # Retrieve friend suggestion list in form of an array of FriendSuggestion object
+    pyReal.getFriendSuggestions()
+    # Retrieve sent friend requests list in form of an array of FriendRequest object
+    pyReal.getSentFriendRequests()
+    # Retrieve received friend requests list in form of an array of FriendRequest object
+    pyReal.getReceivedFriendRequests()
+    
+    # Retrieve memory list in form of an array of Memory object
+    pyReal.getMemories()
+    # Retrieve friends feed in form of an array of Post object
+    pyReal.getFriendsFeed()
+    # Retrieve discovery feed in form of an array of Post object
+    pyReal.getDiscoveryFeed()
+```
 
 ### Application
 
