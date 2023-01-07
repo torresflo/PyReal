@@ -1,18 +1,22 @@
 import requests
 import pendulum
+import hashlib
 
 from Utils.DataTools import DataSaver
 
+from .Model.User import User, ConfidentialUser
+from .Model.Post import Post
+from .Model.FriendRequest import FriendSuggestion, FriendRequest
 from .Model.Memory import Memory
 
 class BeRealConnectionHandler:
     def __init__(self):
         self.m_googleApiKey = "AIzaSyDwjfEeparokD7sXPVQli9NsTuhT6fJ6iA"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<BeRealConnectionHandler (token={self.m_token})>"
 
-    def connect(self, phoneNumber: str):
+    def connect(self, phoneNumber: str) -> None:
         self.loadRefreshToken()
         if self.m_refreshToken:
             self.refreshTokens()
@@ -113,6 +117,41 @@ class PyReal:
                     "authorization": self.m_beRealConnection.m_token
                 },
             ).json()
+            return ConfidentialUser(result)
+
+    def getUserList(self, url):
+        if self.isConnected():
+            result = requests.get(
+                url,
+                headers={
+                    "authorization": self.m_beRealConnection.m_token
+                },
+            ).json()
+            return result["data"]
+
+    def getFriends(self):
+        users = self.getUserList(f"{self.m_beRealApiUrl}/relationships/friends")
+        return self.parseUserList(users)
+
+    def getFriendSuggestions(self):
+        suggestions = self.getUserList(f"{self.m_beRealApiUrl}/relationships/suggestions")
+        friendSuggestions = []
+        for friendSuggestion in suggestions:
+            friendSuggestions.append(FriendSuggestion(friendSuggestion))
+        return friendSuggestions
+
+    def getFriendRequests(self, requestType):
+        requests = self.getUserList(f"{self.m_beRealApiUrl}/relationships/friend-requests/{requestType}")
+        friendRequests = []
+        for request in requests:
+            friendRequests.append(FriendRequest(request))
+        return friendRequests
+
+    def getSentFriendRequests(self):
+        return self.getFriendRequests("sent")
+    
+    def getReceivedFriendRequests(self):
+        return self.getFriendRequests("received")
 
     def getMemories(self):
         if self.isConnected():
@@ -128,6 +167,35 @@ class PyReal:
                 memories.append(Memory(memoryData))
             return memories
 
+    def getFriendsFeed(self):
+        if self.isConnected():
+            result = requests.get(
+                f"{self.m_beRealApiUrl}/feeds/friends",
+                headers={
+                    "authorization": self.m_beRealConnection.m_token
+                },
+            ).json()
+            return self.parsePostList(result)
 
+    def getDiscoveryFeed(self):
+        if self.isConnected():
+            result = requests.get(
+                f"{self.m_beRealApiUrl}/feeds/discovery",
+                headers={
+                    "authorization": self.m_beRealConnection.m_token
+                },
+            ).json()
+            return self.parsePostList(result["posts"])
+
+    def parseUserList(self, usersData):
+        users = []
+        for userData in usersData:
+            users.append(User(userData))
+        return users
+
+    def parsePostList(self, postsData):
+        posts = []
+        for postData in postsData:
+            posts.append(Post(postData))
+        return posts
         
-    

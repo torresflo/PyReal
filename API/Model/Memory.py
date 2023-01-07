@@ -10,5 +10,5 @@ class Memory(object):
         self.m_isLate = data["isLate"]
         self.m_memoryDay = data["memoryDay"]
 
-    def __repr__(self):
-        return f"<Memory {self.m_id}>"
+    def __repr__(self) -> str:
+        return f"<Memory {self.m_id} taken on {self.m_memoryDay}>"
